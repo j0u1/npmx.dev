@@ -63,6 +63,21 @@
         },
         "keyboard_shortcuts": {
           "type": "string"
+        },
+        "sections": {
+          "type": "object",
+          "properties": {
+            "resources": {
+              "type": "string"
+            },
+            "features": {
+              "type": "string"
+            },
+            "other": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

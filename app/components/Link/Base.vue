@@ -11,7 +11,7 @@ const props = withDefaults(
      * */
     type?: never
     /** Visual style of the link */
-    variant?: 'button-primary' | 'button-secondary' | 'link'
+    variant?: 'button-primary' | 'button-secondary' | 'link' | 'footer'
     /** Size (only applicable for button variants) */
     size?: 'small' | 'medium'
     /** Makes the link take full width */
@@ -62,7 +62,8 @@ const isLinkAnchor = computed(
 )
 
 /** size is only applicable for button like links */
-const isLink = computed(() => props.variant === 'link')
+const isFooterLink = computed(() => props.variant === 'footer')
+const isLink = computed(() => props.variant === 'link' || isFooterLink.value)
 const isButton = computed(() => !isLink.value)
 const isButtonSmall = computed(() => props.size === 'small' && !isLink.value)
 const isButtonMedium = computed(() => props.size === 'medium' && !isLink.value)
@@ -92,9 +93,11 @@ const keyboardShortcutsEnabled = useKeyboardShortcuts()
       'flex': block,
       'inline-flex': !block,
       'underline-offset-[0.2rem] underline decoration-1 decoration-fg/30':
-        !isLinkAnchor && isLink && !noUnderline,
+        !isLinkAnchor && isLink && !isFooterLink && !noUnderline,
       'justify-start font-mono text-fg hover:(decoration-accent text-accent) focus-visible:(decoration-accent text-accent) transition-colors duration-200':
-        isLink,
+        variant === 'link',
+      'justify-start rounded-md px-2 py-1 font-mono text-fg-subtle transition-colors duration-200 hover:(bg-bg-subtle text-fg) focus-visible:(bg-bg-subtle text-fg)':
+        isFooterLink,
       'justify-center font-mono border border-border rounded-md transition-all duration-200':
         isButton,
       'text-sm px-4 py-2': isButtonMedium,

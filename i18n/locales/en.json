@@ -19,7 +19,12 @@
     "social": "social",
     "chat": "chat",
     "builders_chat": "builders",
-    "keyboard_shortcuts": "keyboard shortcuts"
+    "keyboard_shortcuts": "keyboard shortcuts",
+    "sections": {
+      "resources": "Resources",
+      "features": "Features",
+      "other": "Other"
+    }
   },
   "shortcuts": {
     "section": {

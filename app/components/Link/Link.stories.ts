@@ -63,6 +63,13 @@ export const ButtonSecondary: Story = {
   },
 }
 
+export const FooterLink: Story = {
+  args: {
+    variant: 'footer',
+    default: 'blog',
+  },
+}
+
 export const SmallButton: Story = {
   args: {
     variant: 'button-primary',
@@ -112,6 +119,7 @@ export const Snapshot: Story = {
         <LinkBase to="#section">Anchor Link</LinkBase>
         <LinkBase to="/" classicon="i-lucide:check">Link with icon</LinkBase>
         <LinkBase to="/" no-underline>Link without underline</LinkBase>
+        <LinkBase to="/" variant="footer">blog</LinkBase>
         <LinkBase to="/" disabled>Disabled Link</LinkBase>
         
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
