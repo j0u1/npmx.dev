@@ -13,10 +13,9 @@ import {
   type BlogPostFrontmatter,
   type ResolvedAuthor,
 } from '../shared/schemas/blog'
-import { globSync } from 'tinyglobby'
 import { isProduction } from '../config/env'
 import { BLUESKY_API } from '../shared/utils/constants'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { glob, mkdir, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import crypto from 'node:crypto'
 
@@ -51,14 +50,18 @@ async function fetchBlueskyAvatars(
     for (const profile of data.profiles) {
       if (profile.avatar) {
         const hash = crypto.createHash('sha256').update(profile.avatar).digest('hex')
-        const dest = join(imagesDir, `${hash}.jpg`)
+        const dest = join(imagesDir, `${hash}.png`)
 
         if (!existsSync(dest)) {
-          const res = await fetch(profile.avatar)
-          await writeFile(join(imagesDir, `${hash}.jpg`), res.body!)
+          const res = await fetch(`${profile.avatar}@png`)
+          if (!res.ok || !res.body) {
+            console.warn(`[blog] Failed to fetch Bluesky avatar: ${profile.avatar}@png`)
+            continue
+          }
+          await writeFile(join(imagesDir, `${hash}.png`), res.body)
         }
 
-        avatarMap.set(profile.handle, `/blog/avatar/${hash}.jpg`)
+        avatarMap.set(profile.handle, `/blog/avatar/${hash}.png`)
       }
     }
   } catch (error) {
@@ -85,7 +88,7 @@ function resolveAuthors(authors: Author[], avatarMap: Map<string, string>): Reso
  * Resolves Bluesky avatars at build time.
  */
 async function loadBlogPosts(blogDir: string, imagesDir: string): Promise<BlogPostFrontmatter[]> {
-  const files: string[] = globSync(join(blogDir, '*.md'))
+  const files = await Array.fromAsync(glob(join(blogDir, '**/*.md').replace(/\\/g, '/')))
 
   // First pass: extract raw frontmatter and collect all Bluesky handles
   const rawPosts: Array<{ frontmatter: Record<string, unknown> }> = []
@@ -134,7 +137,7 @@ async function loadBlogPosts(blogDir: string, imagesDir: string): Promise<BlogPo
   }
 
   // Sort newest first
-  posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+  posts.sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
   return posts
 }
 

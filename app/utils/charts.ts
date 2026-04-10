@@ -1,5 +1,9 @@
 import type {
   AltCopyArgs,
+  VueUiHorizontalBarConfig,
+  VueUiHorizontalBarDatapoint,
+  VueUiQuadrantConfig,
+  VueUiQuadrantDatapoint,
   VueUiXyConfig,
   VueUiXyDatasetBarItem,
   VueUiXyDatasetLineItem,
@@ -28,12 +32,6 @@ export function buildWeeklyEvolutionFromDaily(
     const downloads = sum(weekDays.map(d => d.downloads))
     return { weekStart, weekEnd, downloads }
   })
-}
-
-export function addDays(date: Date, days: number): Date {
-  const d = new Date(date)
-  d.setUTCDate(d.getUTCDate() + days)
-  return d
 }
 
 // Statistics & Interpretation utilities
@@ -446,6 +444,13 @@ export type VersionsBarConfig = Omit<
   'formattedDates' | 'hasEstimation' | 'formattedDatasetValues' | 'granularity'
 > & { datapointLabels: string[]; dateRangeLabel: string; semverGroupingMode: string }
 
+export type FacetBarChartConfig = VueUiHorizontalBarConfig & {
+  facet: string // translated
+  description: string // translated
+  copy: (text: string) => Promise<void>
+  $t: TrendTranslateFunction
+}
+
 // Used for TrendsChart.vue
 export function createAltTextForTrendLineChart({
   dataset,
@@ -594,4 +599,213 @@ export async function copyAltTextForVersionsBarChart({
 }: AltCopyArgs<VersionsBarDataset, VersionsBarConfig>) {
   const altText = createAltTextForVersionsBarChart({ dataset, config })
   await config.copy(altText)
+}
+
+// Used for FacetBarChart.vue
+export function createAltTextForCompareFacetBarChart({
+  dataset,
+  config,
+}: AltCopyArgs<VueUiHorizontalBarDatapoint[], FacetBarChartConfig>) {
+  if (!dataset) return ''
+  const { facet, description, $t } = config
+
+  const packages = dataset.map(d => d.name).join(', ')
+  const facet_analysis = dataset
+    .map(d =>
+      $t('package.trends.copy_alt.facet_bar_analysis', {
+        package_name: d.name,
+        value: d.formattedValue,
+      }),
+    )
+    .join(' ')
+
+  const altText = `${config.$t('package.trends.copy_alt.facet_bar_general_description', {
+    packages,
+    facet,
+    description,
+    facet_analysis,
+    watermark: config.$t('package.trends.copy_alt.watermark'),
+  })}`
+
+  return altText
+}
+
+export async function copyAltTextForCompareFacetBarChart({
+  dataset,
+  config,
+}: AltCopyArgs<VueUiHorizontalBarDatapoint[], FacetBarChartConfig>) {
+  const altText = createAltTextForCompareFacetBarChart({ dataset, config })
+  await config.copy(altText)
+}
+
+type CompareQuadrantChartConfig = VueUiQuadrantConfig & {
+  copy: (text: string) => Promise<void>
+  $t: TrendTranslateFunction
+}
+
+// Used for FacetQuadrantChart.vue
+export function createAltTextForCompareQuadrantChart({
+  dataset,
+  config,
+}: AltCopyArgs<VueUiQuadrantDatapoint[], CompareQuadrantChartConfig>) {
+  if (!dataset) return ''
+
+  const packages = {
+    topRight: dataset.filter(d => d.quadrant === 'TOP_RIGHT'),
+    topLeft: dataset.filter(d => d.quadrant === 'TOP_LEFT'),
+    bottomRight: dataset.filter(d => d.quadrant === 'BOTTOM_RIGHT'),
+    bottomLeft: dataset.filter(d => d.quadrant === 'BOTTOM_LEFT'),
+  }
+
+  const descriptions = {
+    topRight: '',
+    topLeft: '',
+    bottomRight: '',
+    bottomLeft: '',
+  }
+
+  if (packages.topRight.length) {
+    descriptions.topRight = config.$t('compare.quadrant_chart.copy_alt.side_analysis_top_right', {
+      packages: packages.topRight.map(p => p.fullname).join(', '),
+    })
+  }
+
+  if (packages.topLeft.length) {
+    descriptions.topLeft = config.$t('compare.quadrant_chart.copy_alt.side_analysis_top_left', {
+      packages: packages.topLeft.map(p => p.fullname).join(', '),
+    })
+  }
+
+  if (packages.bottomRight.length) {
+    descriptions.bottomRight = config.$t(
+      'compare.quadrant_chart.copy_alt.side_analysis_bottom_right',
+      {
+        packages: packages.bottomRight.map(p => p.fullname).join(', '),
+      },
+    )
+  }
+
+  if (packages.bottomLeft.length) {
+    descriptions.bottomLeft = config.$t(
+      'compare.quadrant_chart.copy_alt.side_analysis_bottom_left',
+      {
+        packages: packages.bottomLeft.map(p => p.fullname).join(', '),
+      },
+    )
+  }
+
+  const analysis = Object.values(descriptions).filter(Boolean).join('. ')
+
+  const altText = config.$t('compare.quadrant_chart.copy_alt.description', {
+    packages: dataset.map(p => p.fullname).join(', '),
+    analysis,
+    watermark: config.$t('package.trends.copy_alt.watermark'),
+  })
+
+  return altText
+}
+
+export async function copyAltTextForCompareQuadrantChart({
+  dataset,
+  config,
+}: AltCopyArgs<VueUiQuadrantDatapoint[], any>) {
+  const altText = createAltTextForCompareQuadrantChart({ dataset, config })
+  await config.copy(altText)
+}
+
+// Used in chart context menu callbacks
+// @todo replace with downloadFileLink
+export function loadFile(link: string, filename: string) {
+  const a = document.createElement('a')
+  a.href = link
+  a.download = filename
+  a.click()
+  a.remove()
+}
+
+export function sanitise(value: string) {
+  return value
+    .replace(/^@/, '')
+    .replace(/[\\/:"*?<>|]/g, '-')
+    .replace(/\//g, '-')
+}
+
+// Create multi-line labels for long names
+export function insertLineBreaks(text: string, maxCharactersPerLine = 24) {
+  if (typeof text !== 'string') {
+    return ''
+  }
+
+  if (!Number.isInteger(maxCharactersPerLine) || maxCharactersPerLine <= 0) {
+    return text
+  }
+
+  const tokens = text.match(/\S+|\s+/g) || []
+  const lines: string[] = []
+  let currentLine = ''
+
+  const pushLine = () => {
+    const trimmedLine = currentLine.trim()
+
+    if (trimmedLine.length) {
+      lines.push(trimmedLine)
+    }
+
+    currentLine = ''
+  }
+
+  for (const token of tokens) {
+    if (/^\s+$/.test(token)) {
+      if (currentLine.length && !currentLine.endsWith(' ')) {
+        currentLine += ' '
+      }
+      continue
+    }
+
+    if (token.length > maxCharactersPerLine) {
+      pushLine()
+
+      for (let index = 0; index < token.length; index += maxCharactersPerLine) {
+        lines.push(token.slice(index, index + maxCharactersPerLine))
+      }
+      continue
+    }
+
+    const candidate = currentLine.length ? `${currentLine}${token}` : token
+
+    if (candidate.length <= maxCharactersPerLine) {
+      currentLine = candidate
+    } else {
+      pushLine()
+      currentLine = token
+    }
+  }
+
+  pushLine()
+
+  return lines.join('\n')
+}
+
+export function applyEllipsis(text: string, maxLength = 45) {
+  if (typeof text !== 'string') {
+    return ''
+  }
+  if (!Number.isInteger(maxLength) || maxLength <= 0) {
+    return text
+  }
+  if (text.length <= maxLength) {
+    return text
+  }
+  return text.slice(0, maxLength) + '...'
+}
+
+/**
+ * Constants shared among chart components using seeded patterns with the <VueUiPatternSeed> component.
+ * Important: `disambiguator` can be any number, and is used to cycle through different pattern sets. Its
+ * value was chosen for the diversity of its motifs.
+ */
+export const CHART_PATTERN_CONFIG = {
+  disambiguator: 1,
+  minSize: 16,
+  maxSize: 24,
 }

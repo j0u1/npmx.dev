@@ -13,7 +13,7 @@ const props = withDefaults(
     /** Visual style of the link */
     variant?: 'button-primary' | 'button-secondary' | 'link' | 'footer'
     /** Size (only applicable for button variants) */
-    size?: 'small' | 'medium'
+    size?: 'sm' | 'md'
     /** Makes the link take full width */
     block?: boolean
 
@@ -48,7 +48,7 @@ const props = withDefaults(
      */
     noNewTabIcon?: boolean
   }>(),
-  { variant: 'link', size: 'medium' },
+  { variant: 'link', size: 'md' },
 )
 
 const isLinkExternal = computed(
@@ -65,8 +65,8 @@ const isLinkAnchor = computed(
 const isFooterLink = computed(() => props.variant === 'footer')
 const isLink = computed(() => props.variant === 'link' || isFooterLink.value)
 const isButton = computed(() => !isLink.value)
-const isButtonSmall = computed(() => props.size === 'small' && !isLink.value)
-const isButtonMedium = computed(() => props.size === 'medium' && !isLink.value)
+const isButtonSmall = computed(() => props.size === 'sm' && !isLink.value)
+const isButtonMedium = computed(() => props.size === 'md' && !isLink.value)
 const keyboardShortcutsEnabled = useKeyboardShortcuts()
 </script>
 
@@ -127,7 +127,7 @@ const keyboardShortcutsEnabled = useKeyboardShortcuts()
     <kbd
       v-if="keyboardShortcutsEnabled && ariaKeyshortcuts"
       data-kbd-hint
-      class="ms-2 inline-flex items-center justify-center size-4 text-xs text-fg bg-bg-muted border border-border rounded no-underline"
+      class="ms-2 hidden sm:inline-flex items-center justify-center size-4 text-xs text-fg bg-bg-muted border border-border rounded no-underline"
       aria-hidden="true"
     >
       {{ ariaKeyshortcuts }}
