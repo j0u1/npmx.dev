@@ -152,12 +152,12 @@ const socialLinks = computed(() => [
           </Modal>
         </div>
       </div>
-      <p
+      <div
         class="text-xs text-fg-muted text-center sm:text-start border-t border-border mx-auto w-full py-4"
       >
         <span class="sm:hidden">{{ $t('non_affiliation_disclaimer') }}</span>
         <span class="hidden sm:inline">{{ $t('trademark_disclaimer') }}</span>
-      </p>
+      </div>
     </div>
   </footer>
 </template>
