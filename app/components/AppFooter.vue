@@ -109,7 +109,7 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
               target="_blank"
               class="text-fg-muted hover:text-accent transition-all duration-200"
             >
-              <component :class="link.icon" class="size-7" />
+              <span :class="[link.icon, 'size-7']" />
             </NuxtLink>
           </div>
         </div>
