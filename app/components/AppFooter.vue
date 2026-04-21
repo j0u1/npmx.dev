@@ -12,22 +12,24 @@ const closeModal = () => modalRef.value?.close?.()
 
 type FooterLink =
   | { name: string; href: string; kbd?: never; type?: never }
-  | { name: string; kbd: string; href?: never; type?: never }
   | { name: string; type: 'button'; href?: never; kbd?: never }
 
 const socialLinks = computed(() => [
   {
     id: 'github',
+    label: 'GitHub',
     href: 'https://repo.npmx.dev',
     icon: 'i-simple-icons:github',
   },
   {
     id: 'discord',
+    label: 'Discord',
     href: discord.value.url,
     icon: 'i-simple-icons:discord',
   },
   {
     id: 'bluesky',
+    label: 'Bluesky',
     href: 'https://social.npmx.dev',
     icon: 'i-simple-icons:bluesky',
   },
@@ -105,11 +107,11 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
               v-for="link in socialLinks"
               :key="link.id"
               :to="link.href"
-              :aria-label="link.id"
+              :aria-label="link.label"
               target="_blank"
               class="text-fg-muted hover:text-accent transition-all duration-200"
             >
-              <span :class="[link.icon, 'size-7']" />
+              <span :class="[link.icon, 'size-7']" aria-hidden="true" />
             </NuxtLink>
           </div>
         </div>
@@ -126,13 +128,14 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
             <template v-for="link in section.links" :key="link.name">
               <button
                 v-if="link.type === 'button'"
-                class="cursor-pointer text-start font-mono text-fg-subtle text-sm hover:text-accent transition-colors duration-200"
+                type="button"
+                class="cursor-pointer text-start font-mono text-fg-subtle text-sm lowercase hover:text-accent transition-colors duration-200"
                 @click="showModal()"
               >
                 {{ $t(link.name) }}
               </button>
 
-              <LinkBase v-else :key="link.name" :to="link?.href" variant="footer">
+              <LinkBase v-else :to="link?.href" variant="footer">
                 {{ $t(link.name) }}
               </LinkBase>
             </template>
