@@ -11,7 +11,7 @@ const props = withDefaults(
      * */
     type?: never
     /** Visual style of the link */
-    variant?: 'button-primary' | 'button-secondary' | 'link'
+    variant?: 'button-primary' | 'button-secondary' | 'link' | 'footer'
     /** Size (only applicable for button variants) */
     size?: 'sm' | 'md'
     /** Makes the link take full width */
@@ -62,8 +62,9 @@ const isLinkAnchor = computed(
 )
 
 /** size is only applicable for button like links */
-const isLink = computed(() => props.variant === 'link')
-const isButton = computed(() => !isLink.value)
+const isFooterLink = computed(() => props.variant === 'footer')
+const isLink = computed(() => props.variant === 'link' || isFooterLink.value)
+const isButton = computed(() => !isLink.value && !isFooterLink.value)
 const isButtonSmall = computed(() => props.size === 'sm' && !isLink.value)
 const isButtonMedium = computed(() => props.size === 'md' && !isLink.value)
 const keyboardShortcutsEnabled = useKeyboardShortcuts()
@@ -92,7 +93,7 @@ const keyboardShortcutsEnabled = useKeyboardShortcuts()
       'flex': block,
       'inline-flex': !block,
       'underline-offset-[0.2rem] underline decoration-1 decoration-fg/30':
-        !isLinkAnchor && isLink && !noUnderline,
+        !isLinkAnchor && isLink && !noUnderline && !isFooterLink,
       'justify-start font-mono text-fg hover:(decoration-accent text-accent) focus-visible:(decoration-accent text-accent) transition-colors duration-200':
         isLink,
       'justify-center font-mono border border-border rounded-md transition-all duration-200':
@@ -103,6 +104,7 @@ const keyboardShortcutsEnabled = useKeyboardShortcuts()
         variant === 'button-secondary',
       'text-bg bg-fg hover:(bg-fg/50 text-accent) focus-visible:(bg-fg/50) aria-current:(bg-fg text-bg border-fg hover:enabled:(text-bg/50))':
         variant === 'button-primary',
+      'text-fg-subtle text-sm cursor-pointer lowercase': isFooterLink,
     }"
     :to="to"
     :aria-keyshortcuts="keyboardShortcutsEnabled ? ariaKeyshortcuts : undefined"
