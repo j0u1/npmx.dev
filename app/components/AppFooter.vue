@@ -105,6 +105,7 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
               v-for="link in socialLinks"
               :key="link.id"
               :to="link.href"
+              :aria-label="link.id"
               target="_blank"
               class="text-fg-muted hover:text-accent transition-all duration-200"
             >
