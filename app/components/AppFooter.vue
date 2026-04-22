@@ -111,6 +111,7 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
               :to="link.href"
               :aria-label="link.label"
               target="_blank"
+              rel="noopener noreferrer"
               class="text-fg-muted hover:text-accent transition-all duration-200"
             >
               <span :class="[link.icon, 'size-7']" aria-hidden="true" />
