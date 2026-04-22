@@ -3,6 +3,7 @@ import { NPMX_DOCS_SITE } from '#shared/utils/constants'
 
 const route = useRoute()
 const isHome = computed(() => route.name === 'index')
+const { t } = useI18n()
 
 const discord = useDiscordLink()
 const { commandPaletteShortcutLabel } = usePlatformModifierKey()
@@ -11,8 +12,8 @@ const showModal = () => modalRef.value?.showModal?.()
 const closeModal = () => modalRef.value?.close?.()
 
 type FooterLink =
-  | { name: string; href: string; kbd?: never; type?: never }
-  | { name: string; type: 'button'; href?: never; kbd?: never }
+  | { name: string; href: string; type?: never }
+  | { name: string; type: 'button'; onClick: () => void }
 
 const socialLinks = computed(() => [
   {
@@ -37,52 +38,53 @@ const socialLinks = computed(() => [
 
 const footerSections: Array<{ label: string; links: FooterLink[] }> = [
   {
-    label: 'resources',
+    label: t('footer.resources'),
     links: [
       {
-        name: 'footer.blog',
-        href: 'blog',
+        name: t('footer.blog'),
+        href: '/blog',
       },
       {
-        name: 'footer.about',
-        href: 'about',
+        name: t('footer.about'),
+        href: '/about',
       },
       {
-        name: 'a11y.footer_title',
-        href: 'accessibility',
+        name: t('a11y.footer_title'),
+        href: '/accessibility',
       },
       {
-        name: 'privacy_policy.title',
-        href: 'privacy',
+        name: t('privacy_policy.title'),
+        href: '/privacy',
       },
     ],
   },
   {
-    label: 'features',
+    label: t('footer.features'),
     links: [
       {
-        name: 'shortcuts.compare',
-        href: 'compare',
+        name: t('shortcuts.compare'),
+        href: '/compare',
       },
       {
-        name: 'shortcuts.settings',
-        href: 'settings',
+        name: t('shortcuts.settings'),
+        href: '/settings',
       },
       {
-        name: 'footer.keyboard_shortcuts',
+        name: t('footer.keyboard_shortcuts'),
         type: 'button',
+        onClick: showModal,
       },
     ],
   },
   {
-    label: 'other',
+    label: t('footer.other'),
     links: [
       {
-        name: 'pds.title',
-        href: 'pds',
+        name: t('pds.title'),
+        href: '/pds',
       },
       {
-        name: 'footer.docs',
+        name: t('footer.docs'),
         href: NPMX_DOCS_SITE,
       },
     ],
@@ -91,11 +93,11 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
 </script>
 
 <template>
-  <footer class="border-t border-border md:mt-auto md:pt-8 duration-200 transition-all">
+  <footer class="border-t border-border sm:mt-auto sm:pt-8 duration-200 transition-all">
     <div class="container flex flex-col gap-3">
       <!-- Desktop: Show all links. Mobile: Links are in MobileMenu -->
       <div
-        class="hidden md:flex flex-col lg:flex-row gap-6 lg:gap-0 lg:justify-between py-3 duration-200 transition-all"
+        class="hidden sm:flex flex-col lg:flex-row gap-6 lg:gap-0 lg:justify-between py-3 duration-200 transition-all"
       >
         <div class="flex flex-col gap-6">
           <div class="flex flex-col items-start gap-3">
@@ -129,14 +131,21 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
               <button
                 v-if="link.type === 'button'"
                 type="button"
+                aria-haspopup="dialog"
+                @click="link.onClick"
                 class="cursor-pointer text-start font-mono text-fg-subtle text-sm lowercase hover:text-accent transition-colors duration-200"
-                @click.prevent="showModal"
               >
-                {{ $t(link.name) }}
+                {{ link.name }}
               </button>
 
-              <LinkBase v-else :to="link?.href" variant="footer">
-                {{ $t(link.name) }}
+              <LinkBase
+                v-else
+                :to="link?.href"
+                variant="link"
+                noUnderline
+                class="text-fg-subtle text-sm lowercase"
+              >
+                {{ link.name }}
               </LinkBase>
             </template>
           </div>
@@ -144,7 +153,7 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
       </div>
 
       <small
-        class="border-border py-7.75 md:border-t md:py-4 duration-200 transition-all text-xs text-fg-muted text-center md:text-start m-0"
+        class="border-border py-7.75 sm:border-t sm:py-4 duration-200 transition-all text-xs text-fg-muted text-center sm:text-start m-0"
       >
         <span class="lg:hidden">{{ $t('non_affiliation_disclaimer') }}</span>
         <span class="hidden lg:block">{{ $t('trademark_disclaimer') }}</span>

@@ -66,6 +66,15 @@
         },
         "brand": {
           "type": "string"
+        },
+        "resources": {
+          "type": "string"
+        },
+        "features": {
+          "type": "string"
+        },
+        "other": {
+          "type": "string"
         }
       },
       "additionalProperties": false

@@ -20,7 +20,10 @@
     "chat": "chat",
     "builders_chat": "builders",
     "keyboard_shortcuts": "keyboard shortcuts",
-    "brand": "brand"
+    "brand": "brand",
+    "resources": "Resources",
+    "features": "Features",
+    "other": "Other"
   },
   "shortcuts": {
     "section": {
