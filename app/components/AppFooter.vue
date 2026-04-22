@@ -130,7 +130,7 @@ const footerSections: Array<{ label: string; links: FooterLink[] }> = [
                 v-if="link.type === 'button'"
                 type="button"
                 class="cursor-pointer text-start font-mono text-fg-subtle text-sm lowercase hover:text-accent transition-colors duration-200"
-                @click="showModal()"
+                @click.prevent="showModal"
               >
                 {{ $t(link.name) }}
               </button>
